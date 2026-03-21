@@ -1,23 +1,24 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, Loader2 } from "lucide-react";
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
 
+    setIsSubmitting(true);
     try {
-      // ✅ Using the g4uq Render URL
       const response = await fetch("https://bytebite-g4uq.onrender.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // Backend ko cart bhej rahe hain, context fix ke baad IDs sahi jayengi
           items: cart,
           totalAmount: cartTotal,
           customerName: "Vibhor", 
@@ -29,19 +30,20 @@ export default function Cart() {
       }
 
       const data = await response.json();
-      
-      // MongoDB ID ya Token Number dhoondhna
       const orderId = data._id || data.tokenNumber; 
 
       clearCart();
-      alert(`✅ Order Successful! Tera Token: ${data.tokenNumber || 'Generated'}`);
       
-      // Redirect to success or status page
+      // ✅ Tera Desi Message
+      alert(`🎉 Order Successful!\n\nTera Token No: ${data.tokenNumber}\nCounter pe jaake ye token dikhao aur paise de dena! 💸`);
+      
       navigate(`/order/${orderId}`);
 
     } catch (error) {
       console.error("Checkout Error:", error);
       alert("Oops! Order nahi lag paya, server check karo bhai.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -49,7 +51,7 @@ export default function Cart() {
     return (
       <div className="container py-20 px-4 text-center max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Your cart is empty 🥺</h2>
-        <p className="text-gray-500 mb-6">Bhukkad bhai, kuch toh add karo!</p>
+        <p className="text-gray-500 mb-6">Bhukkad bhai, kuch toh add karo menu se!</p>
         <button 
           onClick={() => navigate("/")} 
           className="w-full px-6 py-3 bg-[#ff6b00] text-white rounded-xl font-bold hover:bg-orange-600 transition-colors"
@@ -66,9 +68,7 @@ export default function Cart() {
       
       <div className="space-y-4 mb-8">
         {cart.map((item) => {
-          // MongoDB ki _id ya normal id dono ko handle kiya
           const currentId = item._id || item.id;
-          
           return (
             <div key={currentId} className="flex items-center justify-between p-4 bg-white border rounded-xl shadow-sm">
               <div className="flex-1">
@@ -111,10 +111,21 @@ export default function Cart() {
         </div>
         <button 
           onClick={handleCheckout}
-          className="w-full py-4 bg-[#ff6b00] text-white font-bold text-lg rounded-xl hover:bg-orange-600 transition shadow-lg shadow-orange-500/30"
+          disabled={isSubmitting}
+          className="w-full py-4 bg-[#ff6b00] text-white font-bold text-lg rounded-xl hover:bg-orange-600 transition shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2"
         >
-          Confirm Order & Get Token
+          {isSubmitting ? (
+            <>
+              <Loader2 className="animate-spin" size={20} />
+              Wait karo, Token aa raha hai...
+            </>
+          ) : (
+            "Confirm Order & Get Token"
+          )}
         </button>
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Note: Payment counter pe cash mein hogi.
+        </p>
       </div>
     </div>
   );
