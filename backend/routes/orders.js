@@ -2,19 +2,20 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 
+// Create a new order
 router.post('/', async (req, res) => {
+    const order = new Order({
+        items: req.body.items,
+        totalAmount: req.body.totalAmount,
+        customerName: req.body.customerName,
+        tokenNumber: Math.floor(100 + Math.random() * 900) // 3-digit token
+    });
+
     try {
-        const { items, totalAmount } = req.body;
-        
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-        const tokenId = `#BB-${randomNum}`;
-
-        const newOrder = new Order({ tokenId, items, totalAmount });
-        await newOrder.save();
-
+        const newOrder = await order.save();
         res.status(201).json(newOrder);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 
