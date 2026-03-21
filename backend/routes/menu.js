@@ -26,7 +26,7 @@ router.get('/seed', async (req, res) => {
     try {
         await MenuItem.deleteMany({});
         await MenuItem.insertMany(dummyData);
-        res.json({ message: "✅ Magic successful! Menu database mein add ho gaya." });
+        res.json({ message: "✅ Dummy menu data inserted successfully!" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
