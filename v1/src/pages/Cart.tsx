@@ -6,12 +6,38 @@ export default function Cart() {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
 
-  const handleCheckout = () => {
-    // Phase 1 ke liye mock token generate kar rahe hain
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const tokenId = `BB-${randomNum}`;
-    clearCart();
-    navigate(`/order/${tokenId}`);
+  //  NAYA: Asli Backend Call
+  const handleCheckout = async () => {
+    try {
+      // 1. Apna Render wala URL yahan daal dhyan se
+      const response = await fetch("https://bytebite-backend.onrender.com/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // Hum token khud nahi bana rahe, backend banayega, bas items aur total bhej rahe hain
+          items: cart,
+          totalAmount: cartTotal,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Order place karne mein problem aayi");
+      }
+
+      // 2. Database se naya token aayega
+      const data = await response.json();
+      const realTokenId = data.tokenId; 
+
+      // 3. Cart khali karo aur order page pe bhejo
+      clearCart();
+      navigate(`/order/${realTokenId}`);
+
+    } catch (error) {
+      console.error("Checkout Error:", error);
+      alert("Oops! Order nahi lag paya, please thodi der mein try karna.");
+    }
   };
 
   if (cart.length === 0) {

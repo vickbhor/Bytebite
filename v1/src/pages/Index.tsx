@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuItemCard from "../components/MenuItemCard";
-import { menuItems } from "../data/menuItems";
 import { Search, Megaphone } from "lucide-react"; 
 
 export default function Index() {
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState(""); 
+  
+  // 🚀 Naya State Live Backend Data ke liye
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+
+  // ✅ Backend se Menu mangwane ka Asli Code
+  useEffect(() => {
+    // Note: Agar tumhara Render URL thoda alag hai, toh is line mein change kar lena
+    fetch("https://bytebite-backend.onrender.com/api/menu")
+      .then((res) => res.json())
+      .then((data) => setMenuItems(data))
+      .catch((err) => console.error("Menu fetch karne mein error aayi:", err));
+  }, []);
 
   const categories = ["All", "Snacks", "Meals", "Beverages"];
 
@@ -72,7 +83,8 @@ export default function Index() {
         {filteredItems.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-slideUp">
             {filteredItems.map(item => (
-              <MenuItemCard key={item.id} item={item} />
+              // MongoDB mein ID "_id" hoti hai, isliye usko handle kar liya hai
+              <MenuItemCard key={item._id || item.id} item={item} /> 
             ))}
           </div>
         ) : (
