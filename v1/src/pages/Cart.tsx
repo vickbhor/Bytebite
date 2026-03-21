@@ -6,19 +6,18 @@ export default function Cart() {
   const { cart, updateQuantity, removeFromCart, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
 
-  //  NAYA: Asli Backend Call
   const handleCheckout = async () => {
     try {
-      // 1. Apna Render wala URL yahan daal dhyan se
-      const response = await fetch("https://bytebite-backend.onrender.com/api/orders", {
+      // ✅ Updated to your NEW working Render URL
+      const response = await fetch("https://bytebite-g4uq.onrender.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // Hum token khud nahi bana rahe, backend banayega, bas items aur total bhej rahe hain
           items: cart,
           totalAmount: cartTotal,
+          customerName: "Vibhor", // Optional: Add user name if needed
         }),
       });
 
@@ -26,13 +25,15 @@ export default function Cart() {
         throw new Error("Order place karne mein problem aayi");
       }
 
-      // 2. Database se naya token aayega
       const data = await response.json();
-      const realTokenId = data.tokenId; 
+      
+      // Backend usually returns the order object, so we use its _id or tokenNumber
+      // Agar tumne order page banaya hai, toh data._id use karo
+      const orderId = data._id || data.tokenNumber; 
 
-      // 3. Cart khali karo aur order page pe bhejo
       clearCart();
-      navigate(`/order/${realTokenId}`);
+      alert(`Order Successful! Tera Token: ${data.tokenNumber}`);
+      navigate(`/order/${orderId}`);
 
     } catch (error) {
       console.error("Checkout Error:", error);
@@ -61,7 +62,7 @@ export default function Cart() {
       
       <div className="space-y-4 mb-8">
         {cart.map((item) => (
-          <div key={item.id} className="flex items-center justify-between p-4 bg-white border rounded-xl shadow-sm">
+          <div key={item._id || item.id} className="flex items-center justify-between p-4 bg-white border rounded-xl shadow-sm">
             <div className="flex-1">
               <h3 className="font-bold text-gray-900">{item.name}</h3>
               <p className="text-[#ff6b00] font-semibold">₹{item.price}</p>
@@ -69,15 +70,24 @@ export default function Cart() {
             
             <div className="flex items-center gap-3">
               <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black">
+                <button 
+                  onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)} 
+                  className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
+                >
                   <Minus size={16} />
                 </button>
                 <span className="w-8 text-center font-bold text-gray-900">{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black">
+                <button 
+                  onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)} 
+                  className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
+                >
                   <Plus size={16} />
                 </button>
               </div>
-              <button onClick={() => removeFromCart(item.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+              <button 
+                onClick={() => removeFromCart(item._id || item.id)} 
+                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              >
                 <Trash2 size={20} />
               </button>
             </div>

@@ -9,12 +9,18 @@ export default function Index() {
   // 🚀 Naya State Live Backend Data ke liye
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
-  // ✅ Backend se Menu mangwane ka Asli Code
+  // ✅ Backend se Menu mangwane ka Asli Code - UPDATED URL
   useEffect(() => {
-    // Note: Agar tumhara Render URL thoda alag hai, toh is line mein change kar lena
-    fetch("https://bytebite-backend.onrender.com/api/menu")
+    // 💡 PURANA URL HATA KAR NAYA WALA DAAL DIYA HAI
+    fetch("https://bytebite-g4uq.onrender.com/api/menu")
       .then((res) => res.json())
-      .then((data) => setMenuItems(data))
+      .then((data) => {
+        if(Array.isArray(data)) {
+          setMenuItems(data);
+        } else {
+          console.error("Data array nahi hai:", data);
+        }
+      })
       .catch((err) => console.error("Menu fetch karne mein error aayi:", err));
   }, []);
 
@@ -83,7 +89,6 @@ export default function Index() {
         {filteredItems.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-slideUp">
             {filteredItems.map(item => (
-              // MongoDB mein ID "_id" hoti hai, isliye usko handle kar liya hai
               <MenuItemCard key={item._id || item.id} item={item} /> 
             ))}
           </div>
@@ -92,6 +97,7 @@ export default function Index() {
             <Megaphone size={48} className="text-gray-300" />
             <p className="text-2xl font-bold text-gray-600">Nothing found for "{searchTerm}"!</p>
             <p className="text-gray-400">Try adjusting your search or category filter.</p>
+            <p className="text-sm text-orange-500 mt-2">Bhai, agar database khali hai toh /seed wala link chala do!</p>
             <button 
               onClick={() => {setSearchTerm(""); setFilter("All")}}
               className="px-6 py-2 bg-[#ff6b00] text-white font-bold rounded-lg mt-2"
