@@ -17,8 +17,10 @@ const orderRoutes = require('./routes/orders');
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 
-// MongoDB Database Connection
-mongoose.connect('mongodb://127.0.0.1:27017/bytebite', {
+// MongoDB Database Connection (Updated for Cloud/Atlas)
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/bytebite';
+
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -30,5 +32,5 @@ mongoose.connect('mongodb://127.0.0.1:27017/bytebite', {
 // Server Start karna
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
