@@ -7,17 +7,20 @@ export default function Cart() {
   const navigate = useNavigate();
 
   const handleCheckout = async () => {
+    if (cart.length === 0) return;
+
     try {
-      // ✅ Updated to your NEW working Render URL
+      // ✅ Using the g4uq Render URL
       const response = await fetch("https://bytebite-g4uq.onrender.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          // Backend ko cart bhej rahe hain, context fix ke baad IDs sahi jayengi
           items: cart,
           totalAmount: cartTotal,
-          customerName: "Vibhor", // Optional: Add user name if needed
+          customerName: "Vibhor", 
         }),
       });
 
@@ -27,17 +30,18 @@ export default function Cart() {
 
       const data = await response.json();
       
-      // Backend usually returns the order object, so we use its _id or tokenNumber
-      // Agar tumne order page banaya hai, toh data._id use karo
+      // MongoDB ID ya Token Number dhoondhna
       const orderId = data._id || data.tokenNumber; 
 
       clearCart();
-      alert(`Order Successful! Tera Token: ${data.tokenNumber}`);
+      alert(`✅ Order Successful! Tera Token: ${data.tokenNumber || 'Generated'}`);
+      
+      // Redirect to success or status page
       navigate(`/order/${orderId}`);
 
     } catch (error) {
       console.error("Checkout Error:", error);
-      alert("Oops! Order nahi lag paya, please thodi der mein try karna.");
+      alert("Oops! Order nahi lag paya, server check karo bhai.");
     }
   };
 
@@ -45,7 +49,7 @@ export default function Cart() {
     return (
       <div className="container py-20 px-4 text-center max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Your cart is empty 🥺</h2>
-        <p className="text-gray-500 mb-6">Looks like you haven't added anything to your cart yet.</p>
+        <p className="text-gray-500 mb-6">Bhukkad bhai, kuch toh add karo!</p>
         <button 
           onClick={() => navigate("/")} 
           className="w-full px-6 py-3 bg-[#ff6b00] text-white rounded-xl font-bold hover:bg-orange-600 transition-colors"
@@ -58,41 +62,46 @@ export default function Cart() {
 
   return (
     <div className="container py-8 max-w-2xl mx-auto px-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900">Your Order</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900">Your Order 🛒</h1>
       
       <div className="space-y-4 mb-8">
-        {cart.map((item) => (
-          <div key={item._id || item.id} className="flex items-center justify-between p-4 bg-white border rounded-xl shadow-sm">
-            <div className="flex-1">
-              <h3 className="font-bold text-gray-900">{item.name}</h3>
-              <p className="text-[#ff6b00] font-semibold">₹{item.price}</p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+        {cart.map((item) => {
+          // MongoDB ki _id ya normal id dono ko handle kiya
+          const currentId = item._id || item.id;
+          
+          return (
+            <div key={currentId} className="flex items-center justify-between p-4 bg-white border rounded-xl shadow-sm">
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900">{item.name}</h3>
+                <p className="text-[#ff6b00] font-semibold">₹{item.price}</p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <button 
+                    onClick={() => updateQuantity(currentId, item.quantity - 1)} 
+                    className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="w-8 text-center font-bold text-gray-900">{item.quantity}</span>
+                  <button 
+                    onClick={() => updateQuantity(currentId, item.quantity + 1)} 
+                    className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
                 <button 
-                  onClick={() => updateQuantity(item._id || item.id, item.quantity - 1)} 
-                  className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
+                  onClick={() => removeFromCart(currentId)} 
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  <Minus size={16} />
-                </button>
-                <span className="w-8 text-center font-bold text-gray-900">{item.quantity}</span>
-                <button 
-                  onClick={() => updateQuantity(item._id || item.id, item.quantity + 1)} 
-                  className="p-1.5 bg-white rounded shadow-sm text-gray-600 hover:text-black"
-                >
-                  <Plus size={16} />
+                  <Trash2 size={20} />
                 </button>
               </div>
-              <button 
-                onClick={() => removeFromCart(item._id || item.id)} 
-                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <Trash2 size={20} />
-              </button>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="p-6 bg-gray-50 border rounded-xl">
