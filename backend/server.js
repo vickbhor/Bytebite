@@ -5,8 +5,14 @@ require('dotenv').config();
 
 const app = express();
 
+// 🚀 FIXED CORS Configuration (Ye Vercel ko block nahi hone dega)
+app.use(cors({
+    origin: '*', // Iska matlab duniya ke kisi bhi kone (ya Vercel) se request aaye, allow kar do
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // Middlewares
-app.use(cors()); 
 app.use(express.json());
 
 // 🚀 Nayi APIs ko connect kar rahe hain
