@@ -16,9 +16,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // ✅ Add to Cart Fix: MongoDB ki _id ko handle kiya
   const addToCart = (item: any) => {
-    const itemId = item._id || item.id; // Jo bhi ID mile use pakad lo
+    const itemId = item._id || item.id; 
     setCart(prev => {
       const existing = prev.find(i => (i._id || i.id) === itemId);
       if (existing) {
@@ -28,12 +27,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // ✅ Remove from Cart Fix
+
   const removeFromCart = (id: string) => {
     setCart(prev => prev.filter(item => (item._id !== id && item.id !== id)));
   };
 
-  // ✅ Update Quantity Fix
   const updateQuantity = (id: string, quantity: number) => {
     if (quantity < 1) return removeFromCart(id);
     setCart(prev => prev.map(item => (item._id === id || item.id === id) ? { ...item, quantity } : item));

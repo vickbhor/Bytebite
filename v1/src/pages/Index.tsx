@@ -6,12 +6,12 @@ export default function Index() {
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState(""); 
   
-  // 🚀 Naya State Live Backend Data ke liye
+
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
-  // ✅ Backend se Menu mangwane ka Asli Code - UPDATED URL
+
   useEffect(() => {
-    // 💡 PURANA URL HATA KAR NAYA WALA DAAL DIYA HAI
+
     fetch("https://bytebite-g4uq.onrender.com/api/menu")
       .then((res) => res.json())
       .then((data) => {

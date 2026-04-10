@@ -34,7 +34,7 @@ export default function Cart() {
 
       clearCart();
       
-      // ✅ Tera Desi Message
+  
       alert(`🎉 Order Successful!\n\nTera Token No: ${data.tokenNumber}\nCounter pe jaake ye token dikhao aur paise de dena! 💸`);
       
       navigate(`/order/${orderId}`);
