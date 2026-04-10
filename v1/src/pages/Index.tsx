@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import MenuItemCard from "../components/MenuItemCard";
 import { Search, Megaphone } from "lucide-react"; 
 
-// ⚠️ BHAI YAHAN DHYAN DENA: 
-// Maine assume kiya hai ki teri static file ka naam "menuItems.ts" hai 
-// aur wo "data" folder me hai. Agar kisi aur folder me hai, toh path theek kar lena!
+
 import { menuItems as staticMenu } from "../data/menuItems"; 
 
 export default function Index() {
@@ -13,7 +11,6 @@ export default function Index() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // 🚀 API FETCH HATA DIYA! Ab direct teri file se menu load hoga
     setMenuItems(staticMenu);
   }, []);
 

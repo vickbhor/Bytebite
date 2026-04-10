@@ -13,15 +13,19 @@ export default function Cart() {
 
     setIsSubmitting(true);
     try {
+      // 🚀 THE FIX: MongoDB ko "tokenNumber" chahiye tha, jo hum ab yahan se bhej rahe hain
+      const generatedToken = Math.floor(1000 + Math.random() * 9000); 
+
       const response = await fetch("https://bytebite-g4uq.onrender.com/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          tokenNumber: generatedToken, // 👈 Token Number bhejna zaroori hai!
           items: cart,
           totalAmount: cartTotal,
-          customerName: "Vibhor", 
+          customerName: "Vibhor", // Ise baad me user se input le sakte ho
         }),
       });
 
@@ -30,13 +34,16 @@ export default function Cart() {
       }
 
       const data = await response.json();
-      const orderId = data._id || data.tokenNumber; 
+      
+      // Agar backend naya id na de paye toh humara generated token hi orderId ban jayega
+      const orderId = data._id || data.tokenNumber || generatedToken; 
 
       clearCart();
       
-  
-      alert(`🎉 Order Successful!\n\nTera Token No: ${data.tokenNumber}\nCounter pe jaake ye token dikhao aur paise de dena! 💸`);
+      // 🎉 Success ka dhamaaka!
+      alert(`🎉 Order Successful!\n\nTera Token No: #${data.tokenNumber || generatedToken}\nCounter pe jaake ye token dikhao aur paise de dena! 💸`);
       
+      // Order confirmation page pe le jao
       navigate(`/order/${orderId}`);
 
     } catch (error) {
