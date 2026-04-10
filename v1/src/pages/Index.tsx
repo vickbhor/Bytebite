@@ -2,26 +2,19 @@ import { useState, useEffect } from "react";
 import MenuItemCard from "../components/MenuItemCard";
 import { Search, Megaphone } from "lucide-react"; 
 
+// ⚠️ BHAI YAHAN DHYAN DENA: 
+// Maine assume kiya hai ki teri static file ka naam "menuItems.ts" hai 
+// aur wo "data" folder me hai. Agar kisi aur folder me hai, toh path theek kar lena!
+import { menuItems as staticMenu } from "../data/menuItems"; 
+
 export default function Index() {
   const [filter, setFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState(""); 
-  
-
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
-
   useEffect(() => {
-
-    fetch("https://bytebite-g4uq.onrender.com/api/menu")
-      .then((res) => res.json())
-      .then((data) => {
-        if(Array.isArray(data)) {
-          setMenuItems(data);
-        } else {
-          console.error("Data array nahi hai:", data);
-        }
-      })
-      .catch((err) => console.error("Menu fetch karne mein error aayi:", err));
+    // 🚀 API FETCH HATA DIYA! Ab direct teri file se menu load hoga
+    setMenuItems(staticMenu);
   }, []);
 
   const categories = ["All", "Snacks", "Meals", "Beverages"];
@@ -97,7 +90,6 @@ export default function Index() {
             <Megaphone size={48} className="text-gray-300" />
             <p className="text-2xl font-bold text-gray-600">Nothing found for "{searchTerm}"!</p>
             <p className="text-gray-400">Try adjusting your search or category filter.</p>
-            <p className="text-sm text-orange-500 mt-2"> link chala do!</p>
             <button 
               onClick={() => {setSearchTerm(""); setFilter("All")}}
               className="px-6 py-2 bg-[#ff6b00] text-white font-bold rounded-lg mt-2"
